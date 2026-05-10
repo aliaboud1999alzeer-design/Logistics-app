@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LogisticAI">
+<title>LogisticAI - مساعد اللوجستيات</title>
+<link rel="manifest" href="#" id="manifest-link">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+:root {
+–bg: #0a0f1e;
+–surface: #111827;
+–surface2: #1f2937;
+–border: #1e293b;
+–cyan: #06b6d4;
+–cyan-dark: #0891b2;
+–cyan-glow: rgba(6,182,212,0.15);
+–text: #f1f5f9;
+–muted: #64748b;
+–red: #ef4444;
+–green: #10b981;
+–amber: #f59e0b;
+–blue: #3b82f6;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: ‘Cairo’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Header */
+.header {
+background: linear-gradient(180deg, #0d1526 0%, var(–surface) 100%);
+border-bottom: 1px solid var(–border);
+padding: 14px 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 100;
+backdrop-filter: blur(20px);
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+width: 40px; height: 40px;
+background: linear-gradient(135deg, var(–cyan), #2563eb);
+border-radius: 12px;
+display: flex; align-items: center; justify-content: center;
+font-size: 20px;
+box-shadow: 0 0 20px var(–cyan-glow);
+}
+.logo-text h1 { font-size: 16px; font-weight: 700; }
+.logo-text p { font-size: 11px; color: var(–muted); }
+.header-badges { display: flex; gap: 8px; }
+.badge {
+display: flex; align-items: center; gap: 5px;
+border-radius: 20px; padding: 4px 10px;
+font-size: 11px; font-weight: 600; border: 1px solid;
+}
+.badge-green { background: rgba(16,185,129,0.1); color: #34d399; border-color: rgba(16,185,129,0.3); }
+.badge-red { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.3); }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-green { background: #34d399; animation: pulse 2s infinite; }
+.dot-red { background: #f87171; animation: pulse 1s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Tabs */
+.tabs {
+display: flex;
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+overflow-x: auto;
+scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+flex: 1; min-width: 80px;
+padding: 12px 8px;
+text-align: center;
+font-size: 11px;
+font-weight: 600;
+color: var(–muted);
+cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.2s;
+white-space: nowrap;
+font-family: ‘Cairo’, sans-serif;
+background: none; border-top: none; border-right: none; border-left: none;
+}
+.tab.active { color: var(–cyan); border-bottom-color: var(–cyan); background: var(–cyan-glow); }
+.tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+/* Content */
+.content { padding: 16px; max-width: 700px; margin: 0 auto; padding-bottom: 100px; }
+
+/* Cards */
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+margin-bottom: 12px;
+}
+.card-header {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; }
+.card-sub { font-size: 11px; color: var(–muted); margin-top: 2px; }
+
+/* Buttons */
+.btn {
+padding: 10px 16px;
+border-radius: 12px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+border: none;
+font-family: ‘Cairo’, sans-serif;
+transition: all 0.2s;
+}
+.btn-primary { background: var(–cyan); color: #0a0f1e; }
+.btn-primary:active { background: var(–cyan-dark); transform: scale(0.97); }
+.btn-ghost { background: var(–surface2); color: var(–text); border: 1px solid var(–border); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+.btn-ai {
+background: linear-gradient(135deg, var(–cyan), #2563eb);
+color: white;
+box-shadow: 0 4px 15px var(–cyan-glow);
+}
+
+/* Alert */
+.alert {
+border-radius: 12px;
+padding: 12px 14px;
+margin-bottom: 12px;
+border: 1px solid;
+}
+.alert-red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); }
+.alert-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #f87171; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+font-size: 11px; border-radius: 8px; padding: 3px 10px;
+background: rgba(239,68,68,0.15); color: #f87171;
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
+th { padding: 10px 14px; text-align: right; color: var(–muted); font-weight: 600; font-size: 11px; background: rgba(255,255,255,0.02); }
+td { padding: 10px 14px; border-top: 1px solid var(–border); }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.pill {
+display: inline-flex; align-items: center; gap: 4px;
+border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+}
+.pill-green { background: rgba(16,185,129,0.15); color: #34d399; }
+.pill-red { background: rgba(239,68,68,0.15); color: #f87171; }
+.pill-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.pill-amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+/* Shipment rows */
+.shipment-row {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+display: flex; align-items: center; gap: 12px;
+}
+.shipment-row:last-child { border-bottom: none; }
+.ship-id { font-family: monospace; color: var(–cyan); font-size: 12px; font-weight: 700; }
+.ship-customer { font-size: 14px; font-weight: 600; }
+.ship-address { font-size: 11px; color: var(–muted); margin-top: 2px; }
+.ship-meta { font-size: 11px; color: var(–muted); margin-top: 2px; }
+.ship-actions { margin-right: auto; display: flex; align-items: center; gap: 8px; }
+select {
+background: var(–surface2); border: 1px solid var(–border);
+color: var(–text); border-radius: 8px; padding: 4px 8px;
+font-size: 11px; font-family: ‘Cairo’, sans-serif; outline: none;
+}
+
+/* Route rows */
+.route-row {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+display: flex; align-items: center; gap: 12px;
+}
+.route-row:last-child { border-bottom: none; }
+.route-num {
+width: 36px; height: 36px;
+background: var(–surface2); border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; color: var(–cyan); font-size: 15px; flex-shrink: 0;
+}
+.route-addr { font-size: 13px; font-weight: 600; }
+.route-meta { font-size: 11px; color: var(–muted); margin-top: 3px; }
+.route-btns { margin-right: auto; display: flex; gap: 4px; }
+.icon-btn {
+width: 30px; height: 30px; border-radius: 8px;
+background: var(–surface2); border: 1px solid var(–border);
+color: var(–muted); cursor: pointer; font-size: 14px;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+}
+.icon-btn:active { transform: scale(0.9); }
+.icon-btn-del { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: #f87171; }
+
+/* Chat */
+.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 180px); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; }
+.msg-user { justify-content: flex-start; }
+.msg-ai { justify-content: flex-end; }
+.bubble {
+max-width: 85%; border-radius: 18px;
+padding: 12px 14px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+}
+.bubble-user { background: var(–cyan); color: #0a0f1e; border-radius: 18px 18px 18px 4px; font-weight: 600; }
+.bubble-ai { background: var(–surface2); border: 1px solid var(–border); border-radius: 18px 18px 4px 18px; }
+.bubble-ai-label { font-size: 10px; color: var(–cyan); font-weight: 700; margin-bottom: 4px; }
+.typing { display: flex; gap: 4px; padding: 4px 0; }
+.typing span { width: 8px; height: 8px; background: var(–cyan); border-radius: 50%; animation: bounce 0.8s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.15s; }
+.typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+.chat-input-bar {
+padding: 12px 16px;
+border-top: 1px solid var(–border);
+display: flex; gap: 8px;
+background: var(–surface);
+}
+.chat-input {
+flex: 1;
+background: var(–surface2); border: 1px solid var(–border);
+border-radius: 14px; padding: 10px 14px;
+font-size: 13px; color: var(–text);
+font-family: ‘Cairo’, sans-serif; outline: none;
+transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(–cyan); }
+.chat-send {
+background: var(–cyan); border: none; border-radius: 12px;
+padding: 10px 16px; color: #0a0f1e; font-size: 13px;
+font-weight: 700; cursor: pointer; font-family: ‘Cairo’, sans-serif;
+transition: all 0.2s;
+}
+.chat-send:active { transform: scale(0.95); }
+.chat-send:disabled { opacity: 0.4; }
+
+/* Quick chips */
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px 0; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+white-space: nowrap; font-size: 11px; font-weight: 600;
+padding: 5px 12px; border-radius: 20px;
+background: var(–surface2); border: 1px solid var(–border);
+color: var(–muted); cursor: pointer; font-family: ‘Cairo’, sans-serif;
+transition: all 0.15s;
+}
+.chip:active { background: var(–cyan-glow); color: var(–cyan); border-color: var(–cyan); }
+
+/* Modal */
+.modal-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+z-index: 200; display: flex; align-items: flex-end; justify-content: center;
+animation: fadeIn 0.2s;
+}
+.modal {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 24px 24px 0 0; padding: 20px 16px 32px;
+width: 100%; max-width: 500px;
+animation: slideUp 0.25s;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+.input-group { margin-bottom: 10px; }
+.input-label { font-size: 11px; color: var(–muted); margin-bottom: 4px; font-weight: 600; }
+.field {
+width: 100%; background: var(–surface2); border: 1px solid var(–border);
+border-radius: 12px; padding: 10px 14px;
+font-size: 13px; color: var(–text); font-family: ‘Cairo’, sans-serif; outline: none;
+transition: border-color 0.2s;
+}
+.field:focus { border-color: var(–cyan); }
+.modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+
+/* Stats bar */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 14px; padding: 14px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 900; color: var(–cyan); }
+.stat-label { font-size: 11px; color: var(–muted); margin-top: 2px; }
+
+.add-route-btn {
+width: 100%; padding: 14px;
+border: 2px dashed var(–border); border-radius: 14px;
+background: none; color: var(–muted); font-family: ‘Cairo’, sans-serif;
+font-size: 13px; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+}
+.add-route-btn:hover { border-color: var(–cyan); color: var(–cyan); }
+
+/* Install banner */
+.install-banner {
+position: fixed; bottom: 0; left: 0; right: 0;
+background: linear-gradient(135deg, #0d1f3c, #0f2040);
+border-top: 1px solid rgba(6,182,212,0.3);
+padding: 14px 16px;
+display: flex; align-items: center; justify-content: space-between;
+z-index: 300; gap: 12px;
+}
+.install-text { font-size: 13px; font-weight: 600; }
+.install-sub { font-size: 11px; color: var(–muted); margin-top: 2px; }
+
+.section-title {
+font-size: 18px; font-weight: 800; margin-bottom: 4px;
+}
+.section-sub { font-size: 12px; color: var(–muted); margin-bottom: 14px; }
+.top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+</style>
+
+</head>
+<body>
+
+<!-- Header -->
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🚀</div>
+    <div class="logo-text">
+      <h1>LogisticAI</h1>
+      <p>مساعد اللوجستيات الذكي</p>
+    </div>
+  </div>
+  <div class="header-badges">
+    <div class="badge badge-red" id="low-badge" style="display:none">
+      <span class="dot dot-red"></span>
+      <span id="low-count">0</span> نقص
+    </div>
+    <div class="badge badge-green">
+      <span class="dot dot-green"></span>
+      متصل
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('chat')" id="tab-chat">
+    <span class="tab-icon">💬</span>المساعد
+  </button>
+  <button class="tab" onclick="showTab('inventory')" id="tab-inventory">
+    <span class="tab-icon">📦</span>المخزون
+  </button>
+  <button class="tab" onclick="showTab('shipments')" id="tab-shipments">
+    <span class="tab-icon">🚚</span>الشحنات
+  </button>
+  <button class="tab" onclick="showTab('routes')" id="tab-routes">
+    <span class="tab-icon">🗺️</span>المسارات
+  </button>
+</div>
+
+<!-- ===== CHAT TAB ===== -->
+
+<div id="tab-content-chat" class="chat-wrap">
+  <div class="chips">
+    <div class="chip" onclick="quickAsk('حلل المخزون وأعطني تقرير النقص')">📦 تقرير المخزون</div>
+    <div class="chip" onclick="quickAsk('ما هي حالة الشحنات اليوم؟')">🚚 حالة الشحنات</div>
+    <div class="chip" onclick="quickAsk('حسّن مسارات التوصيل ورتّبها بأفضل طريقة')">🗺️ تحسين المسارات</div>
+    <div class="chip" onclick="quickAsk('أعطني ملخص شامل للوضع اللوجستي')">📊 ملخص شامل</div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-bar">
+    <input class="chat-input" id="chat-input" placeholder="اسألني عن المخزون، الشحنات، المسارات..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="chat-send" id="send-btn" onclick="sendMsg()">إرسال</button>
+  </div>
+</div>
+
+<!-- ===== INVENTORY TAB ===== -->
+
+<div id="tab-content-inventory" class="content" style="display:none">
+  <div class="top-bar">
+    <div>
+      <div class="section-title">إدارة المخزون</div>
+      <div class="section-sub" id="inv-sub">جاري التحميل...</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openModal('add-item-modal')">+ إضافة</button>
+  </div>
+  <div id="low-alert" style="display:none" class="alert alert-red">
+    <div class="alert-title">⚠️ منتجات تحتاج تجديد</div>
+    <div class="tags" id="low-tags"></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>المنتج</th><th>الكمية</th><th>الحد الأدنى</th><th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody id="inv-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SHIPMENTS TAB ===== -->
+
+<div id="tab-content-shipments" class="content" style="display:none">
+  <div class="top-bar">
+    <div>
+      <div class="section-title">الشحنات</div>
+      <div class="section-sub" id="ship-sub">جاري التحميل...</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openModal('add-ship-modal')">+ جديدة</button>
+  </div>
+  <div class="stats" id="ship-stats"></div>
+  <div class="card" id="ship-list"></div>
+</div>
+
+<!-- ===== ROUTES TAB ===== -->
+
+<div id="tab-content-routes" class="content" style="display:none">
+  <div class="top-bar">
+    <div>
+      <div class="section-title">مسارات التوصيل</div>
+      <div class="section-sub" id="routes-sub">جاري التحميل...</div>
+    </div>
+    <button class="btn btn-ai btn-sm" onclick="aiOptimizeRoutes()">🤖 تحسين AI</button>
+  </div>
+  <div class="card" id="routes-list"></div>
+  <button class="add-route-btn" onclick="openModal('add-route-modal')">+ إضافة محطة توصيل</button>
+</div>
+
+<!-- MODALS -->
+
+<div id="add-item-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">📦 إضافة منتج جديد</div>
+    <div class="input-group"><div class="input-label">اسم المنتج *</div><input class="field" id="item-name" placeholder="مثال: لابتوب Dell"></div>
+    <div class="input-group"><div class="input-label">الكود (SKU)</div><input class="field" id="item-sku" placeholder="مثال: LAP-001"></div>
+    <div class="input-group"><div class="input-label">الفئة</div><input class="field" id="item-cat" placeholder="مثال: إلكترونيات"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="input-group"><div class="input-label">الكمية *</div><input class="field" id="item-qty" type="number" placeholder="0"></div>
+      <div class="input-group"><div class="input-label">الحد الأدنى</div><input class="field" id="item-min" type="number" placeholder="10"></div>
+    </div>
+    <div class="input-group"><div class="input-label">السعر (ر.س)</div><input class="field" id="item-price" type="number" placeholder="0"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('add-item-modal')">إلغاء</button>
+      <button class="btn btn-primary" style="flex:1" onclick="addItem()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<div id="add-ship-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">🚚 شحنة جديدة</div>
+    <div class="input-group"><div class="input-label">اسم العميل *</div><input class="field" id="ship-customer" placeholder="شركة أو فرد"></div>
+    <div class="input-group"><div class="input-label">العنوان *</div><input class="field" id="ship-address" placeholder="المدينة، الحي، الشارع"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="input-group"><div class="input-label">عدد المنتجات</div><input class="field" id="ship-items" type="number" placeholder="1"></div>
+      <div class="input-group"><div class="input-label">اسم السائق</div><input class="field" id="ship-driver" placeholder="اختياري"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('add-ship-modal')">إلغاء</button>
+      <button class="btn btn-primary" style="flex:1" onclick="addShipment()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<div id="add-route-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">🗺️ إضافة محطة</div>
+    <div class="input-group"><div class="input-label">العنوان *</div><input class="field" id="route-addr" placeholder="المدينة، الحي، الشارع"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="input-group">
+        <div class="input-label">الأولوية</div>
+        <select class="field" id="route-priority">
+          <option value="عالية">عالية</option>
+          <option value="متوسطة" selected>متوسطة</option>
+          <option value="منخفضة">منخفضة</option>
+        </select>
+      </div>
+      <div class="input-group"><div class="input-label">الوقت</div><input class="field" id="route-time" type="time" value="12:00"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('add-route-modal')">إلغاء</button>
+      <button class="btn btn-primary" style="flex:1" onclick="addRoute()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Install Banner -->
+
+<div id="install-banner" style="display:none" class="install-banner">
+  <div>
+    <div class="install-text">📲 ثبّت التطبيق على جوالك</div>
+    <div class="install-sub">اضغط وشغّله بدون إنترنت</div>
+  </div>
+  <button class="btn btn-primary btn-sm" id="install-btn">تثبيت</button>
+  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('install-banner').style.display='none'">✕</button>
+</div>
+
+<script>
+// ===== DATA =====
+let inventory = [
+  { id:1, name:"لابتوب Dell", sku:"LAP-001", qty:45, minQty:20, category:"إلكترونيات", price:1200 },
+  { id:2, name:"كرسي مكتبي", sku:"CHR-002", qty:12, minQty:15, category:"أثاث", price:350 },
+  { id:3, name:"طابعة HP", sku:"PRN-003", qty:8, minQty:10, category:"إلكترونيات", price:280 },
+  { id:4, name:"ورق A4", sku:"PAP-004", qty:500, minQty:100, category:"قرطاسية", price:15 },
+  { id:5, name:"شاشة LG 27\"", sku:"MON-005", qty:6, minQty:8, category:"إلكترونيات", price:420 },
+];
+
+let shipments = [
+  { id:"SHP-001", customer:"شركة الأمل", address:"الرياض، حي النزهة", status:"قيد التوصيل", items:3, date:"2026-05-10", driver:"أحمد محمد" },
+  { id:"SHP-002", customer:"مؤسسة النور", address:"جدة، حي الروضة", status:"تم التسليم", items:7, date:"2026-05-09", driver:"خالد علي" },
+  { id:"SHP-003", customer:"متجر الربيع", address:"الدمام، حي الشاطئ", status:"معلق", items:2, date:"2026-05-11", driver:"—" },
+  { id:"SHP-004", customer:"شركة تقنية", address:"الرياض، حي العليا", status:"قيد التوصيل", items:5, date:"2026-05-10", driver:"سعد الغامدي" },
+  { id:"SHP-005", customer:"مكتبة المعرفة", address:"مكة، حي العزيزية", status:"معلق", items:10, date:"2026-05-12", driver:"—" },
+];
+
+let routes = [
+  { id:1, address:"الرياض، حي النزهة، شارع الملك فهد", priority:"عالية", time:"09:00" },
+  { id:2, address:"الرياض، حي العليا، برج المملكة", priority:"متوسطة", time:"11:30" },
+  { id:3, address:"الرياض، حي السليمانية، مركز التسوق", priority:"منخفضة", time:"14:00" },
+  { id:4, address:"الرياض، حي المروج، الطريق الدائري", priority:"عالية", time:"10:00" },
+];
+
+let chatHistory = [];
+
+// ===== TABS =====
+function showTab(name) {
+  ['chat','inventory','shipments','routes'].forEach(t => {
+    document.getElementById('tab-content-'+t).style.display = 'none';
+    document.getElementById('tab-'+t).classList.remove('active');
+  });
+  document.getElementById('tab-content-'+name).style.display = (name==='chat') ? 'flex' : 'block';
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='inventory') renderInventory();
+  if(name==='shipments') renderShipments();
+  if(name==='routes') renderRoutes();
+}
+
+// ===== UTILS =====
+function statusStyle(s) {
+  if(s==='تم التسليم') return 'pill pill-green';
+  if(s==='قيد التوصيل') return 'pill pill-blue';
+  return 'pill pill-amber';
+}
+function priorityColor(p) {
+  if(p==='عالية') return '#f87171';
+  if(p==='متوسطة') return '#fbbf24';
+  return '#34d399';
+}
+function getLowItems() { return inventory.filter(i => i.qty <= i.minQty); }
+function updateBadge() {
+  const low = getLowItems();
+  const badge = document.getElementById('low-badge');
+  if(low.length > 0) { badge.style.display='flex'; document.getElementById('low-count').textContent=low.length; }
+  else { badge.style.display='none'; }
+}
+
+// ===== INVENTORY =====
+function renderInventory() {
+  const low = getLowItems();
+  document.getElementById('inv-sub').textContent = `${inventory.length} منتج • ${low.length} يحتاج تجديد`;
+  const alert = document.getElementById('low-alert');
+  if(low.length > 0) {
+    alert.style.display='block';
+    document.getElementById('low-tags').innerHTML = low.map(i=>`<span class="tag">${i.name} (${i.qty}/${i.minQty})</span>`).join('');
+  } else { alert.style.display='none'; }
+  document.getElementById('inv-table').innerHTML = inventory.map(item => {
+    const isLow = item.qty <= item.minQty;
+    return `<tr style="${isLow?'background:rgba(239,68,68,0.04)':''}">
+      <td><div style="font-weight:600">${item.name}</div><div style="font-size:10px;color:var(--muted)">${item.sku} • ${item.category}</div></td>
+      <td style="font-weight:700;color:${isLow?'#f87171':'var(--text)'}">${item.qty}</td>
+      <td style="color:var(--muted)">${item.minQty}</td>
+      <td>${isLow?'<span class="pill pill-red">نقص</span>':'<span class="pill pill-green">جيد</span>'}</td>
+    </tr>`;
+  }).join('');
+  updateBadge();
+}
+
+function addItem() {
+  const name = document.getElementById('item-name').value.trim();
+  const qty = parseInt(document.getElementById('item-qty').value);
+  if(!name || isNaN(qty)) return alert('يرجى إدخال الاسم والكمية');
+  inventory.push({
+    id: Date.now(), name,
+    sku: document.getElementById('item-sku').value || 'SKU-'+Date.now().toString().slice(-4),
+    qty, minQty: parseInt(document.getElementById('item-min').value)||10,
+    category: document.getElementById('item-cat').value||'عام',
+    price: parseFloat(document.getElementById('item-price').value)||0
+  });
+  closeModal('add-item-modal');
+  ['item-name','item-sku','item-cat','item-qty','item-min','item-price'].forEach(id=>document.getElementById(id).value='');
+  renderInventory();
+}
+
+// ===== SHIPMENTS =====
+function renderShipments() {
+  const delivered = shipments.filter(s=>s.status==='تم التسليم').length;
+  const inProgress = shipments.filter(s=>s.status==='قيد التوصيل').length;
+  const pending = shipments.filter(s=>s.status==='معلق').length;
+  document.getElementById('ship-sub').textContent = `${shipments.length} شحنة إجمالاً`;
+  document.getElementById('ship-stats').innerHTML = `
+    <div class="stat"><div class="stat-val" style="color:#fbbf24">${pending}</div><div class="stat-label">معلقة</div></div>
+    <div class="stat"><div class="stat-val" style="color:#60a5fa">${inProgress}</div><div class="stat-label">قيد التوصيل</div></div>
+    <div class="stat"><div class="stat-val" style="color:#34d399">${delivered}</div><div class="stat-label">تم التسليم</div></div>
+  `;
+  document.getElementById('ship-list').innerHTML = shipments.map(s => `
+    <div class="shipment-row">
+      <div>
+        <div class="ship-id">${s.id}</div>
+        <div style="font-size:10px;color:var(--muted)">${s.date}</div>
+      </div>
+      <div style="flex:1">
+        <div class="ship-customer">${s.customer}</div>
+        <div class="ship-address">${s.address}</div>
+        <div class="ship-meta">${s.items} منتج • السائق: ${s.driver}</div>
+      </div>
+      <div class="ship-actions">
+        <span class="${statusStyle(s.status)}">${s.status}</span>
+        ${s.status!=='تم التسليم'?`<select onchange="updateShipStatus('${s.id}',this.value)">
+          <option value="" disabled selected>تغيير</option>
+          <option value="معلق">معلق</option>
+          <option value="قيد التوصيل">قيد التوصيل</option>
+          <option value="تم التسليم">تم التسليم</option>
+        </select>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateShipStatus(id, status) {
+  shipments = shipments.map(s => s.id===id ? {...s, status} : s);
+  renderShipments();
+}
+
+function addShipment() {
+  const customer = document.getElementById('ship-customer').value.trim();
+  const address = document.getElementById('ship-address').value.trim();
+  if(!customer || !address) return alert('يرجى إدخال اسم العميل والعنوان');
+  const num = shipments.length + 1;
+  shipments.push({
+    id: 'SHP-'+String(num).padStart(3,'0'),
+    customer, address, status: 'معلق',
+    items: parseInt(document.getElementById('ship-items').value)||1,
+    date: new Date().toISOString().split('T')[0],
+    driver: document.getElementById('ship-driver').value||'—'
+  });
+  closeModal('add-ship-modal');
+  ['ship-customer','ship-address','ship-items','ship-driver'].forEach(id=>document.getElementById(id).value='');
+  renderShipments();
+}
+
+// ===== ROUTES =====
+function renderRoutes() {
+  document.getElementById('routes-sub').textContent = `${routes.length} محطات اليوم`;
+  document.getElementById('routes-list').innerHTML = routes.map((r, idx) => `
+    <div class="route-row">
+      <div class="route-num">${idx+1}</div>
+      <div style="flex:1">
+        <div class="route-addr">${r.address}</div>
+        <div class="route-meta" style="color:${priorityColor(r.priority)}">● أولوية ${r.priority}</div>
+        <div class="route-meta">⏰ ${r.time}</div>
+      </div>
+      <div class="route-btns">
+        ${idx>0?`<button class="icon-btn" onclick="moveRoute(${idx},-1)">↑</button>`:''}
+        ${idx<routes.length-1?`<button class="icon-btn" onclick="moveRoute(${idx},1)">↓</button>`:''}
+        <button class="icon-btn icon-btn-del" onclick="deleteRoute(${r.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function moveRoute(idx, dir) {
+  const newIdx = idx + dir;
+  if(newIdx<0||newIdx>=routes.length) return;
+  [routes[idx], routes[newIdx]] = [routes[newIdx], routes[idx]];
+  renderRoutes();
+}
+
+function deleteRoute(id) {
+  routes = routes.filter(r=>r.id!==id);
+  renderRoutes();
+}
+
+function addRoute() {
+  const address = document.getElementById('route-addr').value.trim();
+  if(!address) return alert('يرجى إدخال العنوان');
+  routes.push({
+    id: Date.now(),
+    address,
+    priority: document.getElementById('route-priority').value,
+    time: document.getElementById('route-time').value
+  });
+  closeModal('add-route-modal');
+  document.getElementById('route-addr').value='';
+  renderRoutes();
+}
+
+async function aiOptimizeRoutes() {
+  showTab('chat');
+  await new Promise(r=>setTimeout(r,100));
+  quickAsk('حسّن مسارات التوصيل التالية ورتّبها بأفضل طريقة لتوفير الوقت والوقود مع مراعاة الأولوية:\n'+routes.map((r,i)=>`${i+1}. ${r.address} (${r.priority} - ${r.time})`).join('\n'));
+}
+
+// ===== CHAT =====
+function getContext() {
+  return `
+بيانات المخزون:
+${inventory.map(i=>`- ${i.name}: ${i.qty} وحدة (حد أدنى: ${i.minQty})${i.qty<=i.minQty?' ⚠️ نقص':''}`).join('\n')}
+
+الشحنات:
+${shipments.map(s=>`- ${s.id}: ${s.customer} - ${s.address} - ${s.status}`).join('\n')}
+
+مسارات التوصيل:
+${routes.map((r,i)=>`${i+1}. ${r.address} (${r.priority} - ${r.time})`).join('\n')}
+`;
+}
+
+function addChatMsg(role, content) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role==='user'?'user':'ai'}`;
+  if(role==='user') {
+    div.innerHTML = `<div class="bubble bubble-user">${content}</div>`;
+  } else {
+    div.innerHTML = `<div class="bubble bubble-ai"><div class="bubble-ai-label">🤖 المساعد الذكي</div>${content}</div>`;
+  }
+  container.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+  return div;
+}
+
+function showTyping() {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="bubble bubble-ai"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  container.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if(el) el.remove();
+}
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value='';
+  await sendChat(text);
+}
+
+async function quickAsk(text) {
+  await sendChat(text);
+}
+
+async function sendChat(text) {
+  document.getElementById('send-btn').disabled = true;
+  addChatMsg('user', text);
+  chatHistory.push({ role:'user', content: getContext()+'\n\nسؤال: '+text });
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`أنت مساعد لوجستي ذكي متخصص في إدارة المخزون، تتبع الشحنات، وتحسين مسارات التوصيل. أجب دائماً بالعربية بشكل مختصر وعملي. استخدم الإيموجي لتوضيح النقاط.`,
+        messages: chatHistory.slice(-8)
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b=>b.text||'').join('')||'عذراً، حدث خطأ.';
+    removeTyping();
+    addChatMsg('ai', reply.replace(/\n/g,'<br>'));
+    chatHistory.push({ role:'assistant', content: reply });
+  } catch(e) {
+    removeTyping();
+    addChatMsg('ai', '❌ خطأ في الاتصال. تأكد من الإنترنت وحاول مجدداً.');
+  }
+  document.getElementById('send-btn').disabled = false;
+}
+
+// ===== MODALS =====
+function openModal(id) { document.getElementById(id).style.display='flex'; }
+function closeModal(id) { document.getElementById(id).style.display='none'; }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.style.display='none'; });
+});
+
+// ===== PWA INSTALL =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display='flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if(outcome==='accepted') document.getElementById('install-banner').style.display='none';
+    deferredPrompt = null;
+  }
+});
+
+// ===== INIT =====
+// Welcome message
+addChatMsg('ai', 'مرحباً! أنا مساعدك اللوجستي الذكي 🚀\n\nأقدر أساعدك في:\n• 📦 تحليل المخزون وتنبيهات النقص\n• 🚚 متابعة حالة الشحنات\n• 🗺️ تحسين مسارات التوصيل\n\nاختر من الخيارات السريعة أو اكتب سؤالك!'.replace(/\n/g,'<br>'));
+updateBadge();
+</script>
+
+</body>
+</html>
